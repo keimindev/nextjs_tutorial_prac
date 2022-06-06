@@ -6,43 +6,33 @@ import styles from "../styles/Home.module.css";
 import ItemList from "../src/component/ItemList";
 
 
-export default function Home() {
-  const [list, setList] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
-  
-  const getData = () => {
-    Axios.get(API_URL).then((res) => {
-      setList(res.data)
-      setIsLoading(true)
-    })
-  }
-
-  useEffect(() => {
-    getData();
-  }, []);
-
+export default function Home({list}) {
   return (
     <div>
       <Head>
         <title>HOME | MIN의 첫 Next</title>
         <meta name="description" content="next tutorial 입니다"></meta>
       </Head>
-      {!isLoading ? (
-       <div style={{ padding: "300px 0" }}>
-          <Loader inline="centered" active>
-            Loading
-          </Loader>
-        </div>
-      ) : (
-          <>
           <Header as="h3" style={{ paddingTop: 40 }}>The Best</Header>
            <Divider></Divider>
           <ItemList list={list.slice(0,9)}/>
-          </>
-      )}
-      
 
     </div>
   );
 }
+
+
+//ssr - 브라우저 내부 환경이 아니다
+export async function getStaticProps() {
+  const apiUrl = process.env.apiUrl;
+  const res = await Axios.get(apiUrl);
+  const data = res.data;
+
+  return {
+    props: {
+      list: data,
+      name: process.env.name
+    }
+  }
+}
+
